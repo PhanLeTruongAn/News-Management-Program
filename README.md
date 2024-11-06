@@ -23,6 +23,9 @@ Chạy qua Visual Studio hoặc Visual Studio Code
 Mở dự án trong Visual Studio hoặc Visual Studio Code.
 Bấm Run hoặc F5 để chạy chương trình.
 
+Nếu cần lưu lại những gì bạn đã làm trên chương trình:
+*Quay lại Menu chính và Ấn [8].
+
 4. Lưu ý khi sử dụng chương trình
 
 Lưu dữ liệu: Chương trình sẽ lưu dữ liệu trong các tệp XML (được chỉ định ở trên). Đảm bảo bạn có quyền ghi trong thư mục chứa các tệp này.
