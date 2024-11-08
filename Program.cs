@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq; 
 using System.Xml.Serialization;
 
-namespace News_Manage
+namespace NMP
 {
-    public class Person
+    public abstract class Person
     {
         public string Name { get; set; }
         public string PhoneNumber { get; set; }
@@ -42,7 +42,6 @@ namespace News_Manage
 
         public override void DisplayInfo()
         {
-            base.DisplayInfo();
             Console.WriteLine($"Dept: {Department}");
         }
     }
@@ -68,14 +67,15 @@ namespace News_Manage
         public Category Category { get; set; }
         public News() { }
 
-        public News(string title, string summary, DateTime broadcastTime, Editor editor, Category category)
+        public News(string title, string summary, DateTime broadcastTime, Editor editor)
         {
             Title = title;
             Summary = summary;
             BroadcastTime = broadcastTime;
             Editor = editor;
-            Category = category;
+            Category = new Category(editor.Department); // Automatically set the category based on editor's department
         }
+
 
         public void DisplayInfo()
         {
@@ -162,7 +162,9 @@ namespace News_Manage
             return null;
         }
     }
+    public delegate void NewsAddedEventHandler(News news);
 
+    public delegate void NewsRemovedEventHandler(News news);
     public class NewsManager
     {
         public List<News> NewsList { get; set; }
@@ -448,14 +450,28 @@ namespace News_Manage
 
         static void DisplayNewsEditor(NewsManager newsManager, Editor currentEditor)
         {
+            // Clear the console
             Console.Clear();
-            Console.SetCursorPosition(Console.WindowWidth / 3 + 8, Console.WindowHeight / 8);
+            Console.SetCursorPosition(Console.WindowWidth / 3 + 8, Console.WindowHeight / 12);
             Console.WriteLine("=== News Editor ===");
-            Console.SetCursorPosition(Console.WindowWidth / 3 - 2, Console.WindowHeight / 8 + 3);
+            // Set cursor position for the news table display
+            int tableX = Console.WindowWidth / 8; // Adjust for wider title section
+            int tableY = Console.WindowHeight / 8; // Adjust vertical position
+
+            Console.SetCursorPosition(tableX, tableY);
+            DisplayNewsTable(newsManager); // Display the news table
+
+            // Move the cursor to a new position below the table for options
+            int optionsX = Console.WindowWidth / 3 - 2;
+            int optionsY = tableY + newsManager.NewsList.Count + 6; // Adjust for table height
+            Console.SetCursorPosition(optionsX, optionsY);
+
+            // Display editor options
             Console.WriteLine("1. Add News  2. Edit News  3. Delete News");
+
+            // Read and handle the user's input
             ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
             int choice;
-
             if (int.TryParse(keyInfo.KeyChar.ToString(), out choice))
             {
                 switch (choice)
@@ -469,12 +485,43 @@ namespace News_Manage
                     case 3:
                         DeleteNews(newsManager, currentEditor);
                         break;
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again.");
+                        break;
                 }
             }
         }
 
+        static void DisplayNewsTable(NewsManager newsManager)
+        {
+            // Draw the table header with adjusted column widths
+            Console.WriteLine("Current News List:");
+            Console.WriteLine("------------------------------------------------------------------------------------------------");
+            Console.WriteLine("{0,-40} | {1,-20} | {2,-15} | {3}", "Title", "Broadcast Time", "Category", "Editor");
+            Console.WriteLine("------------------------------------------------------------------------------------------------");
+
+            if (newsManager != null && newsManager.NewsList != null)
+            {
+                for (int i = 0; i < newsManager.NewsList.Count; i++)
+                {
+                    News news = newsManager.NewsList[i];
+
+                    string title = news.Title != null ? news.Title : "N/A";
+                    string broadcastTime = news.BroadcastTime.ToString("yyyy-MM-dd HH:mm");
+                    string category = news.Category != null && news.Category.Name != null ? news.Category.Name : "N/A";
+                    string editorName = news.Editor != null && news.Editor.Name != null ? news.Editor.Name : "N/A";
+
+                    // Print the news information with the wider title column
+                    Console.WriteLine("{0,-40} | {1,-20} | {2,-15} | {3}", title, broadcastTime, category, editorName);
+                }
+            }
+
+            Console.WriteLine("------------------------------------------------------------------------------------------------");
+        }
+
         static void AddNews(NewsManager newsManager, Editor currentEditor)
         {
+            Console.Clear();
             Console.SetCursorPosition(Console.WindowWidth / 4, Console.WindowHeight / 8 + 6);
             Console.Write("TITLE:   ");
             string title = Console.ReadLine();
@@ -486,20 +533,24 @@ namespace News_Manage
             DateTime broadcastTime;
             DateTime.TryParse(Console.ReadLine(), out broadcastTime);
 
-            News news = new News(title, summary, broadcastTime, currentEditor, null);
+            // Automatically set the category to the editor's department
+            News news = new News(title, summary, broadcastTime, currentEditor);
             newsManager.AddNews(news);
-            Console.SetCursorPosition(Console.WindowWidth / 3 + 8, Console.WindowHeight / 8 + 16);
-            Console.WriteLine("NEWS ADDED SUCCESFULLY!");
+
+            Console.SetCursorPosition(Console.WindowWidth / 3 + 8, Console.WindowHeight / 8 + 12);
+            Console.WriteLine("NEWS ADDED SUCCESSFULLY!");
             Console.ReadKey();
         }
 
         static void EditNews(NewsManager newsManager, Editor currentEditor)
         {
+            Console.Clear();
             Console.WriteLine("Editing News...");
             Console.Write("Enter the title of the news to edit: ");
             string title = Console.ReadLine();
 
-            News newsToEdit = newsManager.NewsList.FirstOrDefault(news => news.Title == title && news.Editor.Email == currentEditor.Email);
+            News newsToEdit = newsManager.NewsList
+                .FirstOrDefault(news => news.Title == title && news.Editor.Email == currentEditor.Email && news.Category.Name == currentEditor.Department);
 
             if (newsToEdit != null)
             {
@@ -535,11 +586,13 @@ namespace News_Manage
 
         static void DeleteNews(NewsManager newsManager, Editor currentEditor)
         {
+            Console.Clear();
             Console.WriteLine("Deleting News...");
             Console.Write("Enter the title of the news to delete: ");
             string title = Console.ReadLine();
 
-            News newsToDelete = newsManager.NewsList.FirstOrDefault(news => news.Title == title && news.Editor.Email == currentEditor.Email);
+            News newsToDelete = newsManager.NewsList
+                .FirstOrDefault(news => news.Title == title && news.Editor.Email == currentEditor.Email && news.Category.Name == currentEditor.Department);
 
             if (newsToDelete != null)
             {
@@ -552,8 +605,7 @@ namespace News_Manage
             }
             Console.ReadKey();
         }
-    
-    
+
         static void DisplayScheduleEditor(ScheduleManager scheduleManager, Editor currentEditor)
         {
             Console.Clear();
@@ -616,6 +668,7 @@ namespace News_Manage
             scheduleManager.AddSchedule(schedule);
             Console.WriteLine("Schedule added.");
         }
+
         static void EditSchedule(ScheduleManager scheduleManager, Editor currentEditor)
         {
             Console.Clear();
