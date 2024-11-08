@@ -30,3 +30,5 @@ Nếu cần lưu lại những gì bạn đã làm trên chương trình:
 
 Lưu dữ liệu: Chương trình sẽ lưu dữ liệu trong các tệp XML (được chỉ định ở trên). Đảm bảo bạn có quyền ghi trong thư mục chứa các tệp này.
 Thao tác trong chương trình: Một số chức năng yêu cầu người dùng hiện tại là Editor. Đảm bảo đăng ký và đăng nhập với quyền này để có thể chỉnh sửa hoặc xóa tin tức.
+
+Cảm ơn đã sử dụng chương trình!
