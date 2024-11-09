@@ -1,8 +1,7 @@
-using System; 
+using System;
 using System.Collections.Generic;
-using System.Dynamic; 
-using System.IO; 
-using System.Linq; 
+using System.Dynamic;
+using System.IO;
 using System.Xml.Serialization;
 
 namespace NMP
@@ -165,6 +164,7 @@ namespace NMP
     public delegate void NewsAddedEventHandler(News news);
 
     public delegate void NewsRemovedEventHandler(News news);
+
     public class NewsManager
     {
         public List<News> NewsList { get; set; }
@@ -549,8 +549,15 @@ namespace NMP
             Console.Write("Enter the title of the news to edit: ");
             string title = Console.ReadLine();
 
-            News newsToEdit = newsManager.NewsList
-                .FirstOrDefault(news => news.Title == title && news.Editor.Email == currentEditor.Email && news.Category.Name == currentEditor.Department);
+            News newsToEdit = null;
+            foreach (News news in newsManager.NewsList)
+            {
+                if (news.Title == title && news.Editor.Email == currentEditor.Email && news.Category.Name == currentEditor.Department)
+                {
+                    newsToEdit = news;
+                    break;
+                }
+            }
 
             if (newsToEdit != null)
             {
@@ -591,8 +598,15 @@ namespace NMP
             Console.Write("Enter the title of the news to delete: ");
             string title = Console.ReadLine();
 
-            News newsToDelete = newsManager.NewsList
-                .FirstOrDefault(news => news.Title == title && news.Editor.Email == currentEditor.Email && news.Category.Name == currentEditor.Department);
+            News newsToDelete = null;
+            foreach (News news in newsManager.NewsList)
+            {
+                if (news.Title == title && news.Editor.Email == currentEditor.Email && news.Category.Name == currentEditor.Department)
+                {
+                    newsToDelete = news;
+                    break;
+                }
+            }
 
             if (newsToDelete != null)
             {
@@ -678,10 +692,17 @@ namespace NMP
             Console.Write("\nEnter the time of the schedule you want to edit. (yyyy-MM-dd HH:mm): ");
             if (DateTime.TryParse(Console.ReadLine(), out DateTime selectedTime))
             {
-                Schedule scheduleToEdit = scheduleManager.Schedules
-                    .FirstOrDefault(s => s.Time == selectedTime && s.Editor.Email == currentEditor.Email);
+                Schedule scheduleToEdit = null;
+                foreach (Schedule schedule in scheduleManager.Schedules)
+                {
+                    if (schedule.Time == selectedTime && schedule.Editor.Email == currentEditor.Email)
+                    {
+                        scheduleToEdit = schedule;
+                        break;
+                    }
+                }
 
-                if (scheduleToEdit != null)
+                    if (scheduleToEdit != null)
                 {
                     Console.Write("Enter new time (yyyy-MM-dd HH:mm): ");
                     DateTime newTime;
@@ -716,8 +737,15 @@ namespace NMP
             Console.Write("\nEnter the time of the calendar you want to delete. (yyyy-MM-dd ): ");
             if (DateTime.TryParse(Console.ReadLine(), out DateTime selectedTime))
             {
-                Schedule scheduleToDelete = scheduleManager.Schedules
-                    .FirstOrDefault(s => s.Time == selectedTime && s.Editor.Email == currentEditor.Email);
+                Schedule scheduleToDelete = null;
+                foreach (Schedule schedule in scheduleManager.Schedules)
+                {
+                    if (schedule.Time == selectedTime && schedule.Editor.Email == currentEditor.Email)
+                    {
+                        scheduleToDelete = schedule;
+                        break;
+                    }
+                }
 
                 if (scheduleToDelete != null)
                 {
@@ -739,3 +767,4 @@ namespace NMP
     }
 
 }
+
