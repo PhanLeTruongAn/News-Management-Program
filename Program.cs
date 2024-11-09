@@ -161,12 +161,14 @@ namespace NMP
             return null;
         }
     }
-    public delegate void NewsAddedEventHandler(News news);
 
-    public delegate void NewsRemovedEventHandler(News news);
-
+    [Serializable]
     public class NewsManager
     {
+        public delegate void NewsAddedEventHandler(News news);
+
+        public delegate void NewsRemovedEventHandler(News news);
+
         public List<News> NewsList { get; set; }
 
         public NewsManager()
@@ -227,20 +229,40 @@ namespace NMP
     {
         public static void SaveToFile(string filePath, T data)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-            using (FileStream stream = new FileStream(filePath, FileMode.Create))
+            try
             {
-                serializer.Serialize(stream, data);
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                using (FileStream stream = new FileStream(filePath, FileMode.Create))
+                {
+                    serializer.Serialize(stream, data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving to file: {ex.Message}");
             }
         }
 
         public static T LoadFromFile(string filePath)
         {
-            if (!File.Exists(filePath)) return default;
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-            using (FileStream stream = new FileStream(filePath, FileMode.Open))
+            try
             {
-                return (T)serializer.Deserialize(stream);
+                if (!File.Exists(filePath))
+                {
+                    Console.WriteLine("File does not exist.");
+                    return default;
+                }
+
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                using (FileStream stream = new FileStream(filePath, FileMode.Open))
+                {
+                    return (T)serializer.Deserialize(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading from file: {ex.Message}");
+                return default;
             }
         }
     }
