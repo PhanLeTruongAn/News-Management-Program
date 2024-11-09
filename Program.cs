@@ -61,16 +61,16 @@ namespace NMP
     {
         public string Title { get; set; }
         public string Summary { get; set; }
-        public DateTime BroadcastTime { get; set; }
+        public DateTime Date { get; set; }
         public Editor Editor { get; set; }
         public Category Category { get; set; }
         public News() { }
 
-        public News(string title, string summary, DateTime broadcastTime, Editor editor)
+        public News(string title, string summary, DateTime Date, Editor editor)
         {
             Title = title;
             Summary = summary;
-            BroadcastTime = broadcastTime;
+            Date = Date;
             Editor = editor;
             Category = new Category(editor.Department); // Automatically set the category based on editor's department
         }
@@ -78,7 +78,7 @@ namespace NMP
 
         public void DisplayInfo()
         {
-            Console.WriteLine($"Title: {Title}, Time: {BroadcastTime}, Editor: {Editor.Name}, Category: {Category.Name}");
+            Console.WriteLine($"Title: {Title}, Time: {Date}, Editor: {Editor.Name}, Category: {Category.Name}");
         }
     }
 
@@ -199,13 +199,13 @@ namespace NMP
             return null;
         }
 
-        public bool EditNews(string title, string newSummary, DateTime newBroadcastTime)
+        public bool EditNews(string title, string newSummary, DateTime newDate)
         {
             News news = FindNewsByTitle(title);
             if (news != null)
             {
                 news.Summary = newSummary;
-                news.BroadcastTime = newBroadcastTime;
+                news.Date = newDate;
                 return true;
             }
             return false;
@@ -294,8 +294,8 @@ namespace NMP
                 News news = newsManager.NewsList[i];
                 if (news.Category != null && news.Category.Name == category)
                 {
-                    Console.WriteLine("Title: {0}\nSummary: {1}\nBroadcast Time: {2}\n",
-                        news.Title, news.Summary, news.BroadcastTime);
+                    Console.WriteLine("Title: {0}\nSummary: {1}\nDate: {2}\n",
+                        news.Title, news.Summary, news.Date);
                 }
             }
             Console.ReadKey();
@@ -497,7 +497,7 @@ namespace NMP
             // Draw the table header with adjusted column widths
             Console.WriteLine("Current News List:");
             Console.WriteLine("------------------------------------------------------------------------------------------------");
-            Console.WriteLine("{0,-40} | {1,-20} | {2,-15} | {3}", "Title", "Broadcast Time", "Category", "Editor");
+            Console.WriteLine("{0,-40} | {1,-20} | {2,-15} | {3}", "Title", "Date", "Category", "Editor");
             Console.WriteLine("------------------------------------------------------------------------------------------------");
 
             if (newsManager != null && newsManager.NewsList != null)
@@ -507,12 +507,12 @@ namespace NMP
                     News news = newsManager.NewsList[i];
 
                     string title = news.Title != null ? news.Title : "N/A";
-                    string broadcastTime = news.BroadcastTime.ToString("yyyy-MM-dd HH:mm");
+                    string Date = news.Date.ToString("yyyy-MM-dd HH:mm");
                     string category = news.Category != null && news.Category.Name != null ? news.Category.Name : "N/A";
                     string editorName = news.Editor != null && news.Editor.Name != null ? news.Editor.Name : "N/A";
 
                     // Print the news information with the wider title column
-                    Console.WriteLine("{0,-40} | {1,-20} | {2,-15} | {3}", title, broadcastTime, category, editorName);
+                    Console.WriteLine("{0,-40} | {1,-20} | {2,-15} | {3}", title, Date, category, editorName);
                 }
             }
 
@@ -529,12 +529,12 @@ namespace NMP
             Console.Write("SUMMARY:   ");
             string summary = Console.ReadLine();
             Console.SetCursorPosition(Console.WindowWidth / 4, Console.WindowHeight / 8 + 10);
-            Console.Write("Broadcast Time (yyyy-mm-dd hh:mm):   ");
-            DateTime broadcastTime;
-            DateTime.TryParse(Console.ReadLine(), out broadcastTime);
+            Console.Write("Date (yyyy-mm-dd hh:mm):   ");
+            DateTime Date;
+            DateTime.TryParse(Console.ReadLine(), out Date);
 
             // Automatically set the category to the editor's department
-            News news = new News(title, summary, broadcastTime, currentEditor);
+            News news = new News(title, summary, Date, currentEditor);
             newsManager.AddNews(news);
 
             Console.SetCursorPosition(Console.WindowWidth / 3 + 8, Console.WindowHeight / 8 + 12);
@@ -566,17 +566,17 @@ namespace NMP
                 Console.Write("Enter new summary: ");
                 newsToEdit.Summary = Console.ReadLine();
 
-                Console.Write("Do you want to edit the broadcast time? (yes/no): ");
+                Console.Write("Do you want to edit the Date? (yes/no): ");
                 string editBroadcastResponse = Console.ReadLine().Trim().ToLower();
 
                 if (editBroadcastResponse == "yes")
                 {
-                    Console.Write("Enter new broadcast time (yyyy-MM-dd): ");
-                    DateTime broadcastTime;
-                    if (DateTime.TryParse(Console.ReadLine(), out broadcastTime))
+                    Console.Write("Enter new Date (yyyy-MM-dd): ");
+                    DateTime Date;
+                    if (DateTime.TryParse(Console.ReadLine(), out Date))
                     {
-                        newsToEdit.BroadcastTime = broadcastTime;
-                        Console.WriteLine("Broadcast time updated.");
+                        newsToEdit.Date = Date;
+                        Console.WriteLine("Date updated.");
                     }
                     else
                     {
@@ -767,4 +767,3 @@ namespace NMP
     }
 
 }
-
